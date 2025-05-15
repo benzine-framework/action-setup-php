@@ -70,7 +70,7 @@ runs:
     - working-directory: ${{ inputs.working_directory }}
       if: ${{ steps.read-php-version.outputs.has_composer }}
       shell: bash
-      run: composer install --ignore-platform-reqs --prefer-dist
+      run: composer install --ignore-platform-reqs --prefer-dist --no-scripts
     - id: composer-cache-save
       if: ${{ always() && steps.read-php-version.outputs.has_composer }}
       uses: actions/cache/save@v4

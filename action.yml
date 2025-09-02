@@ -64,12 +64,26 @@ runs:
         echo "System PHP Version: ${{ steps.read-system-php-version.outputs.php_version }}"
         if [ "${{ steps.read-php-version.outputs.php_version }}" != "" ] && [ "${{ steps.read-php-version.outputs.php_version }}" != "${{ steps.read-system-php-version.outputs.php_version }}" ]; then
           echo "Switching PHP version to ${{ steps.read-php-version.outputs.php_version }}"
+          echo "keep_system_php=false" >> $GITHUB_OUTPUT
         else
           echo "Keeping system PHP version ${{ steps.read-system-php-version.outputs.php_version }}"
+          echo "keep_system_php=true" >> $GITHUB_OUTPUT
+        fi
+
+    - id: detect-if-apt-present
+      name: "Detect if apt is present"
+      shell: bash
+      run: |
+        if command -v apt-get > /dev/null 2>&1; then
+          echo "apt-get exists"
+          echo "apt_exists=true" >> $GITHUB_OUTPUT
+        else
+          echo "apt-get does not exist"
+          echo "apt_exists=false" >> $GITHUB_OUTPUT
         fi
 
     - uses: shivammathur/setup-php@v2
-      if: ${{ steps.read-system-php-version.outputs.php_version != '' || steps.read-php-version.outputs.php_version != steps.read-system-php-version.outputs.php_version }}
+      if: ${{ steps.decide-php-version.outputs.keep_system_php == 'false' && steps.detect-if-apt-present.outputs.apt_exists == 'true' }}
       with:
         php-version: ${{ steps.read-php-version.outputs.php_version }}
         tools: ${{ inputs.php_tools }}

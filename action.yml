@@ -51,7 +51,6 @@ runs:
     - id: read-system-php-version
       name: "Read System PHP Version"
       shell: bash
-      if: ${{ steps.read-php-version.outputs.php_version == '' }}
       run: |
           php_version=$(php -v | head -n 1 | cut -d ' ' -f 2 | cut -d '.' -f 1,2)
           echo "No composer.json detected, falling back to system PHP version $php_version"

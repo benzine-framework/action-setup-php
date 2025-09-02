@@ -23,6 +23,7 @@ runs:
   using: "composite"
   steps:
     - uses: actions/checkout@v4
+
     - id: read-php-version
       name: "Read PHP Version"
       shell: bash
@@ -31,7 +32,7 @@ runs:
         # if composer.json exists, set the php_version output
         if [ -f composer.json ]; then
           # And that the require php key exists
-            echo -n "composer.json exists"
+            echo -n "composer.json exists "
             if jq -e '.require["php"]' composer.json > /dev/null; then
                 php_version=$(jq -r '.require["php"]' composer.json | sed -E 's/[^0-9.]//g')
                 echo "and detected PHP version $php_version from composer.json!"
@@ -46,12 +47,15 @@ runs:
         fi
         echo "No PHP version detected"
         exit 0;
+
     - uses: https://github.com/shivammathur/setup-php@v2
       with:
         php-version: ${{ steps.read-php-version.outputs.php_version }}
         tools: ${{ inputs.php_tools }}
+
     - id: composer-cache-find
       name: "Find Composer Cache"
+      working-directory: ${{ inputs.working_directory }}
       if: ${{ steps.read-php-version.outputs.has_composer }}
       shell: bash
       run: |
@@ -60,6 +64,7 @@ runs:
           echo "key=${{ runner.os }}-${{ inputs.working_directory }}-composer-${{ hashFiles('**/composer.lock') }}" 
           echo "restore-key=${{ runner.os }}-${{ inputs.working_directory }}-composer-"
         } >> $GITHUB_OUTPUT
+
     - id: composer-cache-restore
       if: ${{ steps.read-php-version.outputs.has_composer }}
       uses: actions/cache/restore@v4
@@ -67,16 +72,20 @@ runs:
         path: ${{ steps.composer-cache-find.outputs.dir }}
         key: ${{ steps.composer-cache-find.outputs.key }}
         restore-keys: ${{ steps.composer-cache-find.outputs.restore-key }}
-    - working-directory: ${{ inputs.working_directory }}
+
+    - id: conditionally-composer-install
+      working-directory: ${{ inputs.working_directory }}
       if: ${{ steps.read-php-version.outputs.has_composer }}
       shell: bash
       run: composer install --ignore-platform-reqs --prefer-dist --no-scripts
+
     - id: composer-cache-save
       if: ${{ always() && steps.read-php-version.outputs.has_composer }}
       uses: actions/cache/save@v4
       with:
         path: ${{ steps.composer-cache-find.outputs.dir }}
         key: ${{ steps.composer-cache-restore.outputs.cache-primary-key }}
+
     - id: emit-php-detected
       name: "Emit PHP Detected"
       shell: bash

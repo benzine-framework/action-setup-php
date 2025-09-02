@@ -46,7 +46,7 @@ runs:
         fi
         echo "No PHP version detected"
         exit 0;
-    - uses: shivammathur/setup-php@v2
+    - uses: https://github.com/shivammathur/setup-php@v2
       with:
         php-version: ${{ steps.read-php-version.outputs.php_version }}
         tools: ${{ inputs.php_tools }}

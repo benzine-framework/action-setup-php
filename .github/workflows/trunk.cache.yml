@@ -26,6 +26,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: "Trunk Cache"
-        uses: trunk-io/trunk-action@v1
+        uses: https://github.com/trunk-io/trunk-action@v1
         with:
           check-mode: populate_cache_only

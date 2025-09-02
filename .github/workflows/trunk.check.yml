@@ -25,4 +25,4 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: "Trunk Check"
-        uses: trunk-io/trunk-action@v1
+        uses: https://github.com/trunk-io/trunk-action@v1
